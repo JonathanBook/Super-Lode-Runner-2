@@ -1,0 +1,32 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "(WIN) build release",
+            "type": "shell",
+            "command": "d:/Mes-projet-GitHub/make.exe",
+            "args": [
+                "PROJECT_NAME=BomberMan"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "(WIN) build debug",
+            "type": "shell",
+            "command": "d:/Mes-projet-GitHub/make.exe",
+            "args": [
+                "PROJECT_NAME=BomberMan-Debug-Version",
+                "DEBUGGING=TRUE"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
