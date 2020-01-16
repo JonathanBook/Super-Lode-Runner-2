@@ -9,7 +9,7 @@ int main()
     int screenWidth = 800;
     int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "Super Lode Runner 2 Nes");
+    InitWindow(screenWidth, screenHeight, "Super Lode Runner");
     
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------

@@ -6,9 +6,9 @@
         {
             "label": "(WIN) build release",
             "type": "shell",
-            "command": "d:/Mes-projet-GitHub/make.exe",
+            "command": "D:/Mes-projet-GitHub/Super-Lode-Runner-2-nes/make.exe",
             "args": [
-                "PROJECT_NAME=BomberMan"
+                "PROJECT_NAME=Super-Lode-Runner-2"
             ],
             "group": "build",
             "problemMatcher": [
@@ -18,9 +18,9 @@
         {
             "label": "(WIN) build debug",
             "type": "shell",
-            "command": "d:/Mes-projet-GitHub/make.exe",
+            "command": "D:/Mes-projet-GitHub/Super-Lode-Runner-2-nes/make.exe",
             "args": [
-                "PROJECT_NAME=BomberMan-Debug-Version",
+                "PROJECT_NAME=Super-Lode-Runner-2-debug-version",
                 "DEBUGGING=TRUE"
             ],
             "group": "build",
