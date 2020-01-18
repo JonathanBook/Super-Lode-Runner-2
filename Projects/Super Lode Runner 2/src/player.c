@@ -17,11 +17,13 @@
 #define ANIMATIONFALLSTICK 5
 #define ANIMATIONFALL 6
 
+//Declaration function
 void InitAnimation() ;
 void MouvPlayer(int NumeroAnimation  , float SpeedX , float SpeedY ,int MaxFrame);
-void CheckAnimation(int NumeroAnimation , int MaxFrame);
+void AppliqueNewAnimation(int NumeroAnimation , int MaxFrame);
 bool CheckGround();
 bool CheckCollision(bool IsCheckGround);
+void  ClimbingLadder(float SpeedX , float SpeedY) ;
 
 //POSITION PLAYER
 struct GameObject Player ;
@@ -159,13 +161,23 @@ void InitAnimation()
 
 void MouvPlayer(int NumeroAnimation  , float SpeedX , float SpeedY ,int MaxFrame )
 {
-    
+    if( SpeedY >0 && GetTile( Vector2Add( Player.Position , Vector2(0,1))) == 73 || 
+        SpeedY <0 && GetTile( Player.Position)==73 ||
+        Player.isClimbing)
+    {   
+        Player.Velocity.x =0 ; 
+       ClimbingLadder( SpeedX , SpeedY) ;
+        return ;
+    } 
     //If the player does not move and he touches the ground we quit the function
-    if(SpeedX == 0 && Player.isGround ==true )
+    if(SpeedX == 0 && Player.isGround ==true || Player.isClimbing )
     {
         Player.Velocity.x =0 ;
         return;
     }
+  
+    
+
 
     //Save player position before moving 
     float oldx = Player.Position.x ;
@@ -200,18 +212,21 @@ void MouvPlayer(int NumeroAnimation  , float SpeedX , float SpeedY ,int MaxFrame
    
     //Hero  position.x velocity increment
     Player.Position.x += Player.Velocity.x * 0.014 ;
+
+    if(CheckCollision(false))
+        Player.Position.x = oldx ;
    
     //We check her to apply gravity or not
     if(Player.isClimbing == false && !Player.isGround )
         Player.Position.y += Gravity * 0.014 ;
 
     //Check if we are playing the right animation
-   CheckAnimation(NumeroAnimation ,MaxFrame);
+   AppliqueNewAnimation(NumeroAnimation ,MaxFrame);
 }
 
 
 //Check if we are playing the right animation
-void CheckAnimation(int NumeroAnimation , int MaxFrame)
+void AppliqueNewAnimation(int NumeroAnimation , int MaxFrame)
 {
     if(Player.NumeroAnimation != NumeroAnimation)
         Player.NumeroAnimation = NumeroAnimation ;
@@ -236,12 +251,117 @@ bool CheckCollision(bool IsCheckGround)
 {
     Vector2 Offset = Vector2Zero ;
 
-    if(Player.Velocity.x <0 && !IsCheckGround)
+    if(Player.Velocity.x <0 && !IsCheckGround )
         Offset = Vector2(-TILEW,0); 
+  
     
     int tile = GetTile( Vector2Add(Player.Position ,Offset) ) ;
-
-   if ( tile != 0 && tile!=-1 )
+    
+    if ( tile != 0 && tile!=-1 && !IsCheckGround && tile!=73  )
         return true ;
+
+    if (tile != 0 && tile!=-1 && IsCheckGround  ) 
+        return true ;   
+
     return false    ;
+}
+
+   //TODO: Messy function to review
+//Managed the ascent and descent to the ladder
+void ClimbingLadder(float SpeedX , float SpeedY)
+{   
+    Player.Velocity.x += SpeedX ;
+    Player.Velocity.y += SpeedY ;
+
+    //If the day is not on the Ladder
+    if(!Player.isClimbing)
+    {
+        AppliqueNewAnimation(ANIMATIONGLIMBINGLADER,2) ;
+        Player.isClimbing = true ;
+
+        //Calculates the player's position on the Ladder
+        Vector2 pos;
+        if(SpeedY >0)
+        {
+            //If the day comes down the ladder
+            pos = Vector2(ceil(( Player.Position.x  ) / TILEW ) *TILEW ,
+                ceil( (Player.Position.y + TILEH ) / TILEH)  *TILEH) ;
+        }else
+        {            
+            //If the day comes up the ladder
+            if(SpeedY<0)
+            {
+                pos = Vector2(ceil(( Player.Position.x  ) / TILEW ) *TILEW ,
+                    ceil( (Player.Position.y ) / TILEH)  *TILEH) ;
+            }
+        }
+        //Apply the new position to the player
+        Player.Position = pos;   
+
+    }
+    else //If the player is already on the Ladder
+
+    {   
+        //Move the player on the Y axis
+        Player.Position.y += SpeedY * 0.014 ;
+
+     //-----------Management of the movement of the hero on the Ladder on the X axis---------//  
+       //Save Old Position.y Player
+        float oldx = Player.Position.x ;
+        //Move to Player
+        Player.Position.x += Player.Velocity.x * 0.014 ;
+        //Check is Collision
+        if (CheckCollision(false))
+        {
+            //Move Postion.x to old Position.x
+           Player.Position.x = oldx ;
+           Player.Velocity.x = 0 ;
+        }
+        
+    //---------------------End Management ------------------------------------------------//
+
+         //manage the hero comes Up the ladder   
+        if(SpeedY < 0 && GetTile( Vector2Add( Player.Position , Vector2(0,-TILEH))) !=73)
+        {
+            //Calculates the position of the Player at the exit of the Ladder
+            Vector2 pos = Vector2(ceil(( Player.Position.x  ) / TILEW ) *TILEW ,
+            ( (Player.Position.y - TILEH ) / TILEH)  *TILEH) ; 
+            
+            //Apply the new position to the player
+            Player.Position = pos ;
+
+            AppliqueNewAnimation(ANIMATIONIDLE,2) ;
+
+            //They say the hero doesn’t climb
+            Player.isClimbing = false ;
+
+            return ;
+        }
+
+            //manage the hero comes Down the ladder  
+             if(SpeedY > 0 && GetTile(Player.Position) !=73)
+        {
+            //Calculates the position of the Player at the exit of the Ladder
+            Vector2 pos = Vector2(ceil(( Player.Position.x  ) / TILEW ) *TILEW ,
+            ( (Player.Position.y ) / TILEH)  *TILEH) ; 
+            
+            //Apply the new position to the player
+            Player.Position = pos ;
+
+            AppliqueNewAnimation(ANIMATIONIDLE,2) ;
+
+            //They say the hero doesn’t climb
+            Player.isClimbing = false ;
+
+            return ;
+        }
+
+        //manage if the hero goes out to the right or left of the ladder
+        if(Player.Velocity.x !=0 && GetTile( Player.Position)== -1 ) 
+        {
+             AppliqueNewAnimation(ANIMATIONFALL,3) ;
+             Player.isClimbing = false ;
+        }
+    }
+    
 }

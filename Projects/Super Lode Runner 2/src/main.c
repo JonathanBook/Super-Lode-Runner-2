@@ -30,6 +30,12 @@ int main()
     InitWindow(screenWidth, screenHeight, "Super Lode Runner");
     SetWindowMinSize(SCREENW,SCREENH);
     
+    //CAMERA 2D
+    Camera2D camera = { 0 };
+    camera.offset = (Vector2){ SCREENW/2, SCREENH/2 };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
 
@@ -37,7 +43,7 @@ int main()
     TileDecoup();
     InitPlayer();
     InitMap();
-    RenderTexture2D targetTexture = LoadRenderTexture (MAPRESOW , MAPRESOH ) ;
+    RenderTexture2D targetTexture = LoadRenderTexture (SCREENW , SCREENH ) ;
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
@@ -45,7 +51,7 @@ int main()
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         ScaleUpdate() ;
-        InputManager();
+        camera.target =Vector2(InputManager().x + 20 , InputManager().y + 20 );
         //CameraManager();
         //----------------------------------------------------------------------------------
     
@@ -53,12 +59,14 @@ int main()
         //----------------------------------------------------------------------------------
         //Je DESSINE MA TEXTURE
         BeginTextureMode(targetTexture);
+            BeginMode2D(camera);
+                
+                ClearBackground(BLACK);
+                DrawMap(tilset,ListeRectangle);
+                DrawPlayer(tilset,ListeRectangle);
+                DrawFPS(10,10);
 
-            ClearBackground(BLACK);
-            DrawMap(tilset,ListeRectangle);
-            DrawPlayer(tilset,ListeRectangle);
-            DrawFPS(10,10);
-
+            EndMode2D();
 
         EndTextureMode();
 
@@ -67,11 +75,15 @@ int main()
              ClearBackground(WHITE);
             
             DrawTexturePro(targetTexture.texture,
-            Rectangle(0 ,-SCREENH,-SCREENW,SCREENH) ,
-             Rectangle( (SCREENW*1.4) * CurentScale.l , 240  * CurentScale.h ,256 * CurentScale.l  , 240 * CurentScale.h  ),
-             Vector2Zero ,
-              180,
-             WHITE);
+                Rectangle(0 ,0,-SCREENW,SCREENH) ,
+                Rectangle( SCREENW*1.4 * CurentScale.l ,
+                SCREENH * CurentScale.h ,
+                SCREENW * CurentScale.l  , 
+                SCREENH* CurentScale.h  ),
+                Vector2Zero ,
+                180,
+                WHITE
+            );
           
 
         EndDrawing();
