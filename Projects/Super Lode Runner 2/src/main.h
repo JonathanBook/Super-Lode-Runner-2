@@ -9,10 +9,45 @@
 #define max(a, b)         ((a) > (b) ? (a) : (b))
 #define min(a, b)         ((a) < (b) ? (a) : (b))
 #define Scale(l,h) (Scale){l,h}
+
+
+//PLAYER DEFINE
+//Define the dimensions of a tile
+#define PLAYERTILEW 16
+#define PLAYERTILEH 17
+
+//Definition of animation
+#define ANIMATIONIDLE 0
+#define ANIMATIONLEFT 1
+#define ANIMATIONRIGHT 1
+#define ANIMATIONGLIMBINGLADER 2
+#define ANIMATIONGLIMBINGSTICK 4
+#define ANIMATIONFALLSTICK 5
+#define ANIMATIONFALL 6
+#define AnNul -1 
+
+//MAP DEFINE
 #define TILEH  17
 #define TILEW  16
 #define MAPRESOW 512
 #define MAPRESOH 306
+//Definition of the different tiles
+#define WALL 85
+#define LADER 73
+#define STICK 75
+
+
+typedef struct Animation
+{
+    //Animation
+    int Frame[10][10] ;
+    int MaxFrame  ;
+    int NumeroAnimation  ;
+    int CurentFrame  ;
+    float TimeAnimation ;
+    bool Pause  ;
+}Animation;
+
 
 typedef struct GameObject
 {
@@ -21,23 +56,22 @@ typedef struct GameObject
     Vector2 Velocity  ;
     float MaxSpeed  ;
     Vector2 Position  ;
+    Vector2 Offset ;
 
- 
-//Animation
-    int Frame[10][10] ;
-    int MaxFrame  ;
-    int NumeroAnimation  ;
-    int CurentFrame  ;
+    struct Animation Animation ;   
+
     bool Flip  ;
 
   //STATES
-  bool isClimbing ;
-  bool isLadder ;
-  bool isClimbingStick ;
-  bool isFall ;
-  bool isGround ;
+    bool isClimbing ;
+    bool isLadder ;
+    bool isClimbingStick ;
+    bool isFall ;
+    bool isGround ;
 
 }GameObject;
+
+
 
 
 typedef struct Scale
@@ -47,14 +81,23 @@ typedef struct Scale
 }Scale;
 
 
-//Map
+//map.c
 void InitMap() ;
 void DrawMap(Texture2D tilset, Rectangle ListeRectangle[]);
 int GetTile(Vector2 Pposition) ;
 bool SetTile(Vector2 Pposition , int Ptile) ; 
 
-//PLAYER
+//player.c
 void InitPlayer();
 Vector2 InputManager();
-void UpdateAnimation();
 void DrawPlayer(Texture2D tilset ,Rectangle ListeRectangle[]);
+
+//Glimbing.c
+void  ClimbingLadder(float *SpeedX , float *SpeedY , GameObject *Acteur) ;
+void ExitToStick( struct GameObject *Acteur) ;
+//Animation.c
+void AppliqueNewAnimation(int NumeroAnimation , int MaxFrame,struct GameObject *Acteur);
+void UpdateAnimation(struct GameObject *Acteur);
+
+//Collision.c
+bool CheckCollision(GameObject *Acteur,bool IsCheckGround);

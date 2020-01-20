@@ -64,8 +64,8 @@ int main()
                 ClearBackground(BLACK);
                 DrawMap(tilset,ListeRectangle);
                 DrawPlayer(tilset,ListeRectangle);
-                DrawFPS(10,10);
-
+               
+                
             EndMode2D();
 
         EndTextureMode();
@@ -84,8 +84,8 @@ int main()
                 180,
                 WHITE
             );
-          
-
+            DrawFPS(10,10);
+             
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
@@ -131,8 +131,7 @@ void ScaleUpdate ()
       
         CurentScale.l = WinW/426 ;
         CurentScale.h = WinH/240;
-            printf("L %f \n",CurentScale.l) ;
-            printf("H %f \n",CurentScale.h) ;
+    
     }
     if(CurentScale.l ==0 || CurentScale.h == 0 )
     {
