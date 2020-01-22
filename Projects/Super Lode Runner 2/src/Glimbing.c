@@ -4,27 +4,67 @@
 #include <raymath.h>
 #include <stdio.h>
 
-void InitGlimbing(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
+void InitGlimbing(float *SpeedX , float *SpeedY , struct GameObject *Acteur,int Tile);
 void MoveToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
 void UpToExitLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
-void DownExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
+void DownExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur,int Tile);
 void LeftAndRightExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
 void VeloCityUpdate(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
 
 
-//TODO: Messy function to review
-//Managed the ascent and descent to the ladder
-void ClimbingLadder(float *SpeedX , float *SpeedY,struct GameObject  *Acteur)
-{   
-    int tile ;
-    //Init Velocity
-   VeloCityUpdate(SpeedX ,  SpeedY , Acteur);
 
+
+bool CheckIsGlimbing(float *SpeedX , float *SpeedY , GameObject *Acteur)
+{
+    /*Default Offset*/
+    Acteur->Offset = Vector2(-TILEW/2 , -TILEH/2) ;
+
+    int Tile =GetTile( Vector2Add( Acteur->Position , Acteur->Offset)); ;
+
+    /*Define Offset*/
+    if(*SpeedX >0 )
+    {
+        Acteur->Offset = Vector2(1,-TILEH/2) ;
+        
+    }else if ( *SpeedX < 0 )
+    {
+        Acteur->Offset = Vector2(-TILEW,-TILEH/2) ;
+        
+    }
+     if(*SpeedY > 0)
+    {
+        Acteur->Offset = Vector2(-TILEW/2,1) ;
+        
+    }else if(*SpeedY <0)
+    {
+        Acteur->Offset = Vector2(-TILEW/2,-TILEH/2) ;
+        
+    }
+    
+    Tile = GetTile( Vector2Add( Acteur->Position , Acteur->Offset));
+    
+   if (Tile == LADER && *SpeedY!=0 || Tile == STICK || Acteur->isClimbing)
+    {
+        
+        Glimbing(  SpeedX ,  SpeedY ,  Acteur,Tile) ;
+
+        return true ;
+
+    }
+   return false ;
+}
+
+
+//Managed the ascent and descent to the ladder
+void Glimbing(float *SpeedX , float *SpeedY,struct GameObject  *Acteur ,int Tile)
+{   
+    int tile = Tile ;
+    float TOldY = Acteur->Position.y ;
     //If the day is not on the Ladder
     if(!Acteur->isClimbing)
     {
 
-        InitGlimbing( SpeedX ,  SpeedY , Acteur);
+        InitGlimbing( SpeedX ,  SpeedY , Acteur,Tile );
 
     }
     else //If the *Acteur is already on the Ladder
@@ -34,77 +74,79 @@ void ClimbingLadder(float *SpeedX , float *SpeedY,struct GameObject  *Acteur)
             //TO ladder
             if(Acteur->isLadder)
             {
+                
                 MoveToLadder( SpeedX ,  SpeedY , Acteur);
 
                 //manage the hero comes Up the ladder 
+                if(*SpeedY >0)
+                {
+                    Acteur->Offset = Vector2(-TILEW/2,1);
 
-                Acteur->Offset = Vector2(-8,-8);
+                }else if(*SpeedY <0)
+                {
+                    Acteur->Offset = Vector2(-TILEW/2,-TILEH);
+                }
+
                 tile = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
-
-                if(*SpeedY < 0 && tile !=LADER)
+                
+                if(tile !=LADER && *SpeedY <0  && tile!= WALL)
                 {
                     UpToExitLadder(SpeedX ,  SpeedY , Acteur);
                     return ;
-                }
-                else
+                } else  if(tile !=LADER && *SpeedY <0  && tile== WALL)
                 {
-                     //manage the hero comes Down the ladder  
-                    Acteur->Offset = Vector2(0,1);
-                    tile = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
-
-                    if(*SpeedY > 0 && tile !=LADER)
-                    {
-                        DownExitToLadder(SpeedX ,  SpeedY , Acteur);
-                        return ;
-                    }
-                    else
-                    {
-                        //Check Left
-                        Acteur->Offset = Vector2(-16,-8);
-                        tile = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
-
-                        //Check Right
-                        Acteur->Offset = Vector2(1,-8);
-                        int tile2 = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
-
-                        if(Acteur->Velocity.x <0 && tile == -1  || Acteur->Velocity.x >0 && tile2 == -1)
-                        {
-                           LeftAndRightExitToLadder(SpeedX ,  SpeedY , Acteur);
-                           return;
-                        }
-                        else
-                        {
-                            //Check Stick Collision 
-                            //Left
-                            Acteur->Offset = Vector2(-TILEW,0);
-                            tile = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
-                            //Right
-                            Acteur->Offset = Vector2(TILEW/2,0);
-                            int tile2 = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
-
-                            if(Acteur->Velocity.x <0 && tile ==STICK || Acteur->Velocity.x >0 && tile2 == STICK)
-                            {
-                            
-                                AppliqueAnimation(ANIMATIONGLIMBINGSTICK,3,Acteur) ;
-                                Acteur->isClimbingStick = true ;
-                                Acteur->isLadder = false ;
-                                return ;
-                                    
-                            }
-                           
-                        }   
-                    }
+                    Acteur->Position.y =TOldY;
                 }
+                
+                
+                
+                 if (tile !=LADER && *SpeedY >0)
+                {
+                    DownExitToLadder(SpeedX,SpeedY,Acteur , tile) ;
+
+                    return;
+                }
+                
+                //Check Left
+                if(*SpeedX <0)
+                {
+                    Acteur->Offset = Vector2(-TILEW,-TILEH/2);
+
+                  //Check Right   
+                }else if(*SpeedX >0)
+                {
+                    Acteur->Offset = Vector2(0,-TILEH/2);
+                }
+    
+                tile = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
+
+                if(tile == -1)
+                {
+                    LeftAndRightExitToLadder(SpeedX ,  SpeedY , Acteur);
+                    return;
+                }
+                else if(tile ==STICK)
+                {
+
+                    AppliqueAnimation(ANIMATIONGLIMBINGSTICK,3,Acteur) ;
+                    Acteur->isClimbingStick = true ;
+                    Acteur->isLadder = false ;
+                    return ;
+                }
+
               return ;  
             }
             else  if(Acteur->isClimbingStick)//thne player Glimbing in the Stick
             {
-               Acteur->Velocity.y = 0 ;
+                VeloCityUpdate(SpeedX ,SpeedY ,Acteur) ;
+                
+                Acteur->Offset = Vector2(-TILEW/2 ,-TILEH/2);
+
                 //Save Old Position.y *Acteur
                 float oldx = Acteur->Position.x ;
                 
                 //Apply the new position to the *Acteur
-                Acteur->Offset = Vector2Zero ;
+               // Acteur->Offset = Vector2Zero ;
                 int TH = ceil((Acteur->Position.y + Acteur->Offset.y)/TILEH);
                 Acteur->Position.y =TH*TILEH ;
         
@@ -112,22 +154,22 @@ void ClimbingLadder(float *SpeedX , float *SpeedY,struct GameObject  *Acteur)
                 
                 //Check is Collision
                 if (CheckCollision(Acteur,false))
+                {
                     ExitToStick(Acteur) ;
                     return;
-                
-                //Left
-                Acteur->Offset = Vector2(-TILEW,0);
-                tile  = GetTile(Vector2Add( Acteur->Position , Acteur->Offset));
-                //Right
-                Acteur->Offset = Vector2(1,0);
-                int tile2  = GetTile(Vector2Add( Acteur->Position , Acteur->Offset));
-                
-                if(Acteur->Velocity.x <0 && tile !=STICK  || Acteur->Velocity.x >0 && tile2 !=STICK)
+                }else
                 {
-                   ExitToStick(Acteur) ;
-                    return;
-                }
+                   //Left
                    
+                    tile  = GetTile(Vector2Add( Acteur->Position , Acteur->Offset));
+                    
+                    
+                    if( tile !=STICK )
+                    {
+                     ExitToStick(Acteur) ;
+                        return;
+                    }
+                }
                 return ;
             }
             
@@ -135,41 +177,72 @@ void ClimbingLadder(float *SpeedX , float *SpeedY,struct GameObject  *Acteur)
     } 
 }
 
-void InitGlimbing(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
+void InitGlimbing(float *SpeedX , float *SpeedY , struct GameObject *Acteur , int Tile)
 {
-    //Change Animation
-    AppliqueAnimation(ANIMATIONGLIMBINGLADER,2,Acteur) ;
-    //State Change
-    Acteur->isClimbing = true ;
-    Acteur->isLadder = true ;
-    Acteur->isGround = false ;
+    
+    
 
+    //Change Animation
+    if(Tile == LADER && *SpeedY!=0)
+    {
+        AppliqueAnimation(ANIMATIONGLIMBINGLADER,2,Acteur) ;
+        Acteur->isLadder = true ;
+        Acteur->isClimbingStick = false;
+        //State Change
+        Acteur->isClimbing = true ;
+        Acteur->isGround = false ;
+
+    }else if(Tile == STICK)
+    {
+        AppliqueAnimation(ANIMATIONGLIMBINGSTICK,2,Acteur) ;
+        Acteur->isClimbingStick = true ;
+        Acteur->isLadder = false;
+        //State Change
+        Acteur->isClimbing = true ;
+        Acteur->isGround = false ;
+    }
+    
     //If the day comes down the ladder
     int TL = ceil((  Acteur->Position.x  + -(TILEW/2)  ) / TILEW ) ;
-    TL = TL * TILEW ;
     //Apply the new position to the *Acteur
-    Acteur->Position.x = TL ;  
-
+    Acteur->Position.x = TL * TILEW ; ;  
     return ;
-    
 }
 
 void MoveToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
 {
-     //Save Old Position Acteur
-    Vector2 Old = Acteur->Position ;
+    VeloCityUpdate(SpeedX,SpeedY,Acteur) ;
+
+     //Save Old Position.x 
+    int OldX = Acteur->Position.x ;
 
     //Move to *Acteur
-    Acteur->Position.y += Acteur->Velocity.y * 0.014 ;
-    Acteur->Position.x += Acteur->Velocity.x  * 0.014 ;
+    if(*SpeedX!=0)
+    {
+        Acteur->Position.x += Acteur->Velocity.x  * 0.014 ;
 
+    }else if(*SpeedX == 0)
+    {
+        Acteur->Velocity.x = 0;
+
+    }
+     if(*SpeedY !=0)
+    {
+        Acteur->Position.y += Acteur->Velocity.y  * 0.014 ;
+
+    }else if (*SpeedY == 0)
+    {
+        Acteur->Velocity.y =0 ;
+    }
     //Check is Collision
     if (CheckCollision(Acteur,false))
     {
-        //Move Postion.x to old Position.x
-        Acteur->Position.x = Old.x ;
-        //Acteur->Velocity = Vector2Zero ;
+        /*Move Postion.x to oldX Position.x */
+        Acteur->Position.x = OldX ;
+        /*Rezt Velocity Axe X*/
+        Acteur->Velocity.x = 0 ;
     }
+
     return ;
 }
 
@@ -177,25 +250,32 @@ void UpToExitLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
 {
     AppliqueAnimation(ANIMATIONIDLE,2,Acteur) ;
     
-    Acteur->Offset = Vector2(-8,-8);
-    //Calculates the position of the *Acteur at the exit of the Ladder
-    int TL = ceil((Acteur->Position.x + Acteur->Offset.x)/TILEW);
-    int TH = ceil((Acteur->Position.y + Acteur->Offset.y)/TILEH);
-    //Apply the new position to the *Acteur
-    Acteur->Position =Vector2(TL*TILEW,TH*TILEH);
+    Acteur->Offset = Vector2(-TILEW/2 ,-TILEH/2) ;
 
-    //They say the hero doesn’t climb
-    Acteur->isClimbing = false ;
-    Acteur->isLadder = false ;
-    Acteur->Offset = Vector2Zero ;
+    int Tile = GetTile( Vector2Add( Acteur->Position ,Acteur->Offset)) ;
+                
+    if(Tile !=LADER )
+    {
+        //Calculates the position of the *Acteur at the exit of the Ladder
+        int TL = ceil((Acteur->Position.x + Acteur->Offset.x)/TILEW);
+        int TH = ceil((Acteur->Position.y + Acteur->Offset.y)/TILEH);
+        //Apply the new position to the *Acteur
+        Acteur->Position =Vector2(TL*TILEW,TH*TILEH);
+
+        //They say the hero doesn’t climb
+        Acteur->isClimbing = false ;
+        Acteur->isLadder = false ;
+    }
+   
+
     return;
 }
 
-void DownExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
+void DownExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur,int Tile)
 {
+   
     AppliqueAnimation(ANIMATIONIDLE,2,Acteur) ;
-
-    Acteur->Offset = Vector2(0,1);
+    
     //Calculates the position of the *Acteur at the exit of the Ladder
     int TL = ceil((Acteur->Position.x + Acteur->Offset.x)/TILEW);
     int TH = ceil((Acteur->Position.y + Acteur->Offset.y)/TILEH)-1;
@@ -218,20 +298,6 @@ void LeftAndRightExitToLadder(float *SpeedX , float *SpeedY , struct GameObject 
     return;
 }
 
-void ClimbingStick(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
-{
-    AppliqueAnimation(ANIMATIONGLIMBINGSTICK,2,Acteur);
-    
-  //  VeloCityUpdate(SpeedX,SpeedY,Acteur);
-    
-    Acteur->isClimbing = true;
-    Acteur->isClimbingStick = true;
-    Acteur->isLadder = false ;
-    Acteur->isGround = false ;
-    Acteur->Velocity = Vector2Zero ;
-    ClimbingLadder(SpeedX ,SpeedY ,Acteur);
-    return;
-}
 void ExitToStick( struct GameObject *Acteur)
 {
     AppliqueAnimation(ANIMATIONFALL,3,Acteur) ;
@@ -239,6 +305,7 @@ void ExitToStick( struct GameObject *Acteur)
     Acteur->isClimbingStick = false ;
     Acteur->isGround = false ;
     Acteur->isClimbing = false ;
+    Acteur->Position.y +=8;
     return;
 }
 void VeloCityUpdate(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
@@ -247,11 +314,26 @@ void VeloCityUpdate(float *SpeedX , float *SpeedY , struct GameObject *Acteur)
     Acteur->Velocity.x += *SpeedX ;
     Acteur->Velocity.y += *SpeedY ;
     
-    //Fixe Speed Max Velocity
+    //Fixe Max Velocity
+    /*Fixe Axe X Velocity*/
     if ( Acteur->Velocity.x > Acteur->MaxSpeed )
-        Acteur->Velocity.x = Acteur->MaxSpeed;
-        
+    {
+         Acteur->Velocity.x = Acteur->MaxSpeed;
+
+    }else if ( Acteur->Velocity.x < -Acteur->MaxSpeed )
+    {
+        Acteur->Velocity.x = -Acteur->MaxSpeed;
+    }
+    
+     /*Fixe Axe Y Velocity*/
     if ( Acteur->Velocity.y > Acteur->MaxSpeed )
+    {
         Acteur->Velocity.y = Acteur->MaxSpeed;
-  
+
+    }else  if ( Acteur->Velocity.y < -Acteur->MaxSpeed )
+    {
+        Acteur->Velocity.y = -Acteur->MaxSpeed;
+    }
+    
+  return;
 }

@@ -1,7 +1,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
-
+#define SCREENH 240
+#define SCREENW 256
 #define Rectangle(x,y,w,h)   (Rectangle){x,y,w,h}
 #define Vector2(x,y)   (Vector2){x,y}
 #define Vector2Zero  Vector2(0,0)
@@ -35,7 +36,9 @@
 #define WALL 85
 #define LADER 73
 #define STICK 75
-
+//SceneManager
+#define Menu 0 
+#define GamePlay 1
 
 typedef struct Animation
 {
@@ -48,6 +51,11 @@ typedef struct Animation
     bool Pause  ;
 }Animation;
 
+typedef struct SceneManager
+{
+    int CurentScene ;
+   
+}SceneManager;
 
 typedef struct GameObject
 {
@@ -68,6 +76,8 @@ typedef struct GameObject
     bool isClimbingStick ;
     bool isFall ;
     bool isGround ;
+
+   
 
 }GameObject;
 
@@ -93,8 +103,9 @@ Vector2 InputManager();
 void DrawPlayer(Texture2D tilset ,Rectangle ListeRectangle[]);
 
 //Glimbing.c
-void  ClimbingLadder(float *SpeedX , float *SpeedY , GameObject *Acteur) ;
+void Glimbing(float *SpeedX , float *SpeedY , GameObject *Acteur,int Tile) ;
 void ExitToStick( struct GameObject *Acteur) ;
+bool CheckIsGlimbing(float *SpeedX , float *SpeedY , GameObject *Acteur);
 //Animation.c
 void AppliqueNewAnimation(int NumeroAnimation , int MaxFrame,struct GameObject *Acteur);
 void UpdateAnimation(struct GameObject *Acteur);

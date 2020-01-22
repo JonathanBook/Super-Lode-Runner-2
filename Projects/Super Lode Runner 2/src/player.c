@@ -8,7 +8,7 @@
 
 //Declaration function
 void InitAnimation() ;
-void MouvPlayer(int NumeroAnimation  , float SpeedX , float SpeedY ,int MaxFrame);
+void MouvPlayer(float SpeedX , float SpeedY);
 
 bool CheckGround();
 
@@ -20,66 +20,62 @@ int Gravity = 10 ;
 
 void InitPlayer()
 {  
-    
     InitAnimation();
-    
     //Init position player
-    Player.Position.x = 95 ;
-    Player.Position.y = 164 ;
+    Player.Position.x = 127 ;
+    Player.Position.y = 0 ;
     //Init speed 
     Player.Speed = 8 ;
     Player.MaxSpeed = 50 ;
-    Player.Velocity = Vector2(0,0);
+    Player.Velocity = Vector2Zero;
     Player.isGround = false;
     Player.isClimbing = false;
     Player.Offset = Vector2Zero ;
     Player.Animation.Pause = false ;
+
 }
 
 
 Vector2 InputManager()
 {
-    float dt = 0.14;
     if (IsKeyDown(KEY_W)) //UP
     {
-        MouvPlayer( ANIMATIONGLIMBINGLADER , 0 ,-Player.Speed , 2  ) ;
+        MouvPlayer( 0 ,-Player.Speed ) ;
     } 
-    else if (IsKeyDown(KEY_A))//LEFT
-    {
-        Player.Flip = false ;
-        MouvPlayer( ANIMATIONLEFT , -Player.Speed  , 0 , 3  ) ;
-    }
-    else if (IsKeyDown(KEY_S))//DOWN
-    {
-        MouvPlayer( ANIMATIONGLIMBINGLADER , 0 ,Player.Speed , 3  ) ;
-    }
     else if (IsKeyDown(KEY_D))//RIGHT
     {
         Player.Flip = true ;
-        MouvPlayer( ANIMATIONRIGHT , Player.Speed  , 0 , 3  ) ;
+        MouvPlayer( Player.Speed , 0 ) ;
     }
-    else if (IsKeyDown(KEY_SPACE))//LEFT
+    else if (IsKeyDown(KEY_A))//LEFT
+    {
+        Player.Flip = false ;
+        MouvPlayer( -Player.Speed , 0 ) ;
+    }
+    else if (IsKeyDown(KEY_S))//DOWN
+    {
+        MouvPlayer(0 ,Player.Speed ) ;
+    }
+    else
+    {
+      MouvPlayer(0 ,0);
+    
+    }
+
+    /*Stop Glimbing Stick*/
+     if (IsKeyReleased(KEY_SPACE))
     {
         if(Player.isClimbingStick)
-            ExitToStick(&Player);
-    }
-    else 
-    {
-       MouvPlayer(AnNul , 0 ,0 ,1);
-        if(Player.isGround)
         {
-            AppliqueAnimation(ANIMATIONIDLE,2,&Player);
-            Player.Velocity = Vector2Zero ;
+            /*Stick Canxel*/
+            ExitToStick(&Player);
         }
-  
     }
-    
+
     UpdateAnimation(&Player);
 
     return Player.Position ;
 }
-
-
 
 
 
@@ -108,6 +104,15 @@ void DrawPlayer(Texture2D tilset ,Rectangle ListeRectangle[])
     DrawCircle(tp.x,tp.y,1,GREEN);
 }
 
+void DrawInfoPlayer()
+{
+    DrawText(FormatText("isGlimbing: %d \nisLadder: %d \nVelocityY: %f \nVelocityX: %f \n" ,
+     Player.isClimbing ,
+     Player.isLadder,
+     Player.Velocity.y,
+     Player.Velocity.x),
+     30,10,30,GREEN);
+}
 
 void InitAnimation()
 {
@@ -147,91 +152,80 @@ void InitAnimation()
     printf("ANIMATION CHUTE CHARGER \n") ;
 }
 
-void MouvPlayer(int NumeroAnimation  , float SpeedX , float SpeedY ,int MaxFrame )
+void MouvPlayer(float SpeedX , float SpeedY )
 {
-    if( SpeedY >0 && GetTile( Vector2Add( Player.Position , Vector2(-8,TILEH))) == LADER || 
-        SpeedY <0 && GetTile( Vector2Add( Player.Position , Vector2(-8,-1)))==LADER ||
-        Player.isClimbing && Player.isLadder )
-    {   
-        Player.Velocity = Vector2Zero;
-        AppliqueAnimation(ANIMATIONGLIMBINGLADER,2,&Player);
-        ClimbingLadder(  &SpeedX ,  &SpeedY ,  &Player) ;
-        return ;
-    } 
-    else
-    {
-       if( SpeedX >0 && GetTile( Vector2Add( Player.Position , Vector2(1,0))) == STICK || 
-        SpeedX <0 && GetTile( Vector2Add( Player.Position , Vector2(-16,0)))==STICK ||
-        Player.isClimbing && Player.isClimbingStick)
-        {
-        
-            ClimbingStick(  &SpeedX ,  &SpeedY ,  &Player) ;
-            return ;
-        } 
-        else
-        {
-               //If the player does not move and he touches the ground we quit the function
-            if(SpeedX == 0 && Player.isGround ==true || Player.isClimbing )
+   
+   if( CheckIsGlimbing(&SpeedX,&SpeedY,&Player))
+   {
+       return ;
+
+   } 
+   else if(!Player.isClimbing)
+   {   //Check Is Player Touch Ground
+       Player.isGround = CheckGround();
+       if(Player.isGround)
+       {
+           Player.isGround = true ;
+           //Fixe Velocity.X
+            if(SpeedX == 0)
             {
-                Player.Velocity.x =0 ;
+                Player.Velocity.x = 0 ;
+                AppliqueAnimation(ANIMATIONIDLE,2,&Player) ;
                 return;
             }
-            
+ 
         }
+        else 
+        {
+           
+           Player.Velocity.y += Gravity ;
+
+            //Fixe Max Speed and Axe Y
+           if(Player.Velocity.y > Player.MaxSpeed)
+           {
+               Player.Velocity.y = Player.MaxSpeed;
+           }
+
+           //Move Player and Axe Y
+           Player.Position.y += Player.Velocity.y * 0.014 ;
+
+           //Check if we are playing the right animation
+            AppliqueAnimation(ANIMATIONFALL ,3 , &Player);
+
+        } //End Gravity check
         
-    }
-    
-
-  
-    
-
-
-    //Save player position before moving 
-    float oldx = Player.Position.x ;
-    float oldy = Player.Position.y ;
-
-    //Check if the hero hits the ground or not
-     Player.isGround  = CheckGround();
-
-    //Increases velocity and prevents it from exceeding the maximum speed
-    //If the hero goes right
-    if(SpeedX >=0 && Player.Velocity.x < Player.MaxSpeed)
-    {
-        Player.Velocity.x += SpeedX  ;
-        
-        if(Player.Velocity.x > Player.MaxSpeed  ) 
+        //Fixe Max Speed and Axe X
+         Player.Velocity.x += SpeedX  ;
+        if(Player.Velocity.x > Player.MaxSpeed  )
+        {
             Player.Velocity.x = Player.MaxSpeed ; 
 
-    } 
-    else
-    {  
-         //If the hero goes to the Left
-        if(SpeedX <=0 && Player.Velocity.x > -Player.MaxSpeed)
+        } else if(Player.Velocity.x < -Player.MaxSpeed  ) 
         {
-            Player.Velocity.x += SpeedX  ;
-        
-            if(Player.Velocity.x < -Player.MaxSpeed  ) 
-                Player.Velocity.x = -Player.MaxSpeed ; 
-
+            Player.Velocity.x = -Player.MaxSpeed ; 
         }
-      
-    }  
-   
-    //Hero  position.x velocity increment
-    Player.Position.x += Player.Velocity.x * 0.014 ;
 
-    if(CheckCollision(&Player,false))
-        Player.Position.x = oldx ;
-   
-    //We check her to apply gravity or not
-    if(Player.isClimbing == false && !Player.isGround )
-        Player.Velocity.y += Gravity ;
-        Player.Position.y += Player.Velocity.y * 0.014 ;
-        if(Player.Velocity.y > Player.MaxSpeed)
-            Player.Velocity.y = Player.MaxSpeed;
+        //Save player position before moving 
+        float oldx = Player.Position.x ;
 
-    //Check if we are playing the right animation
-   AppliqueAnimation(NumeroAnimation ,MaxFrame , &Player);
+        //Move Player and Axe X
+        Player.Position.x += Player.Velocity.x * 0.014 ;
+
+        //Check Collision new Possition
+        if(CheckCollision(&Player,false))
+        {
+            Player.Velocity.x = 0 ;
+            Player.Position.x = oldx ;
+            return ;
+        }
+
+        //Check if we are playing the right animation
+        if(Player.isGround )
+        {
+            AppliqueAnimation(ANIMATIONLEFT ,3 , &Player);
+        }    
+   }//End Check Glimbing
+  
 }
 
 
