@@ -180,7 +180,7 @@ void Glimbing(float *SpeedX , float *SpeedY,struct GameObject  *Acteur ,int Tile
 void InitGlimbing(float *SpeedX , float *SpeedY , struct GameObject *Acteur , int Tile)
 {
     
-    
+    Acteur->Velocity = Vector2 ;
 
     //Change Animation
     if(Tile == LADER && *SpeedY!=0)

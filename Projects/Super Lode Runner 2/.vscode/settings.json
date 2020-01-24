@@ -10,7 +10,8 @@
 		"string.h": "c",
 		"starfield.h": "c",
 		"stdlib.h": "c",
-		"stdio.h": "c"
+		"stdio.h": "c",
+		"main.h": "c"
 	},
 	"C_Cpp.errorSquiggles": "Disabled",
 	"cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/"

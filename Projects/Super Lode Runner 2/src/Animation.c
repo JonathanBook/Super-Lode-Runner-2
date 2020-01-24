@@ -2,7 +2,7 @@
 #include <raylib.h>
 
 //Change the animation curent to play
-void AppliqueAnimation(int NumeroAnimation , int MaxFrame, struct GameObject *Acteur)
+void AppliqueAnimation(int NumeroAnimation , int MaxFrame,  GameObject *Acteur)
 {
     if(NumeroAnimation == AnNul)
         return;
@@ -15,7 +15,7 @@ void AppliqueAnimation(int NumeroAnimation , int MaxFrame, struct GameObject *Ac
     
 }
 //play animation
-void UpdateAnimation(struct GameObject *Acteur)
+void UpdateAnimation( GameObject *Acteur)
 
 { 
     //if the velocity and equal zero and that the current animation and diferent of the idle but lamination on pause

@@ -1,29 +1,30 @@
-
-#include <raylib.h>
 #include "main.h"
-#include <stdio.h>
+#include <raylib.h>
 #include <raymath.h>
+#include "Sound.h"
 
 
 Texture2D tilset ={0} ;
-
 Rectangle ListeRectangle[97] ;
-
 Scale CurentScale = Scale(0,0);
+bool isPause = false;
+typedef struct SceneManager
+{
+    int CurentScene ;
+   
+}SceneManager;
 
 
 void ScaleUpdate ();
 void TileDecoup();
 void DrawMenu(Texture2D tilset ,Rectangle ListeRectangle[]);
 void InitMenu();
-void UpdateCursor(SceneManager *Scene);
+void UpdateCursor(int *Scene);
 void CameraLimiteScheck(Camera2D *camera);
 void DrawInfoPlayer();
+
 SceneManager Scene ;
-
-
-
-
+GameObject GameObjectTable[20]={0};
 int main()
 {
     // Initialization
@@ -48,28 +49,30 @@ int main()
 
     tilset = LoadTexture("Assets/Image/Tilset Super Lode Runner2.png");
     TileDecoup();
-    InitPlayer();
-    InitMap();
     InitMenu();
+    initSound(isPause);
     Scene.CurentScene = 0 ;
     RenderTexture2D targetTexture = LoadRenderTexture (SCREENW , SCREENH ) ;
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         // Update
+        
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         ScaleUpdate() ;
-        if(Scene.CurentScene == GamePlay)
+        SoundUpdate(isPause);
+        InitPause();
+        if(Scene.CurentScene == GamePlay && !isPause)
         {
-            
+           
             camera.target =Vector2(InputManager().x + 20 , InputManager().y + 20 );
-           CameraLimiteScheck(&camera);
+            CameraLimiteScheck(&camera);
             
         }else if(Scene.CurentScene == Menu)
         {
             camera.target = Vector2(SCREENW/2,SCREENH/2);
-            UpdateCursor(&Scene);
+            UpdateCursor(&Scene.CurentScene);
         }
         
         
@@ -87,7 +90,7 @@ int main()
                 if(Scene.CurentScene ==GamePlay)
                 {
                     DrawMap(tilset,ListeRectangle);
-                    DrawPlayer(tilset,ListeRectangle);
+                    DrawGameObject(tilset,ListeRectangle,&GameObjectTable);
 
                 }else if(Scene.CurentScene == Menu)
                 {
@@ -113,7 +116,6 @@ int main()
                 WHITE
             );
             DrawFPS(10,10);
-            DrawInfoPlayer();
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
@@ -189,4 +191,17 @@ void CameraLimiteScheck(Camera2D *camera)
         camera->target.y = 180 ; 
     }
                     
+}
+void InitMapExecute(){
+
+    InitMap(&GameObjectTable);
+}
+void InitPause()
+{
+     if(IsKeyReleased(KEY_SPACE))
+    {
+        isPause = !isPause;
+    }
+
+   
 }
