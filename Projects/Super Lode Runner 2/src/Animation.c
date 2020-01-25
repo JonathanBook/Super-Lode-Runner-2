@@ -1,10 +1,9 @@
 #include "main.h"
 #include <raylib.h>
-
 //Change the animation curent to play
 void AppliqueAnimation(int NumeroAnimation , int MaxFrame,  GameObject *Acteur)
 {
-    if(NumeroAnimation == AnNul)
+    if(NumeroAnimation == -1)
         return;
 
     if(Acteur->Animation.NumeroAnimation != NumeroAnimation )

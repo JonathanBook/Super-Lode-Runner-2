@@ -3,11 +3,18 @@
 #include <raymath.h>
 #include "Sound.h"
 
-
+//Ressources
 Texture2D tilset ={0} ;
 Rectangle ListeRectangle[97] ;
+Font FontS;
+Texture2D OverlayImg ;
+
+//FlachTexte Press Start
+float TimeFlachTexte = 0 ;
+bool TextIsVisible;
+
 Scale CurentScale = Scale(0,0);
-bool isPause = false;
+
 typedef struct SceneManager
 {
     int CurentScene ;
@@ -23,15 +30,19 @@ void UpdateCursor(int *Scene);
 void CameraLimiteScheck(Camera2D *camera);
 void DrawInfoPlayer();
 
+
+
 SceneManager Scene ;
+
 GameObject GameObjectTable[20]={0};
+
 int main()
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     int screenWidth = 426;
     int screenHeight = 240;
-
+   
  
 
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -45,12 +56,14 @@ int main()
     camera.zoom = 1.0f;
 
     SetTargetFPS(60);
-    //--------------------------------------------------------------------------------------
-
+    //----------------------------------RESSOURCES LOAD----------------------------------------------------
+    FontS = LoadFontEx("Assets/Font/ARCADE_N.ttf",64,0,0); 
     tilset = LoadTexture("Assets/Image/Tilset Super Lode Runner2.png");
+    OverlayImg = LoadTexture("Assets/Image/Nintendo-Entertainment-System-Bezel-16x10-1680x1050.png");
+//---------------------------------------------------------------------------------------------------------
     TileDecoup();
     InitMenu();
-    initSound(isPause);
+    initSound(GetPause());
     Scene.CurentScene = 0 ;
     RenderTexture2D targetTexture = LoadRenderTexture (SCREENW , SCREENH ) ;
     // Main game loop
@@ -61,9 +74,9 @@ int main()
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         ScaleUpdate() ;
-        SoundUpdate(isPause);
+        SoundUpdate(GetPause());
         InitPause();
-        if(Scene.CurentScene == GamePlay && !isPause)
+        if(Scene.CurentScene == GamePlay && !GetPause())
         {
            
             camera.target =Vector2(InputManager().x + 20 , InputManager().y + 20 );
@@ -72,7 +85,17 @@ int main()
         }else if(Scene.CurentScene == Menu)
         {
             camera.target = Vector2(SCREENW/2,SCREENH/2);
+           
             UpdateCursor(&Scene.CurentScene);
+
+            if(TimeFlachTexte > 5.5f)
+            {
+                TextIsVisible = !TextIsVisible ;
+                TimeFlachTexte =0 ; 
+            }else
+            {
+                TimeFlachTexte += 0.14f;
+            }
         }
         
         
@@ -91,10 +114,19 @@ int main()
                 {
                     DrawMap(tilset,ListeRectangle);
                     DrawGameObject(tilset,ListeRectangle,&GameObjectTable);
+                    
+                    //Draw Pause Texte
+                    if(GetPause())
+                        DrawTextEx(FontS,"PAUSE",Vector2(130,130),8,0,WHITE); 
 
                 }else if(Scene.CurentScene == Menu)
                 {
+                    //Draw BackGround Menu
                     DrawMenu(tilset ,ListeRectangle);
+
+                    //Draw STart Flach Texte
+                    if(TextIsVisible)
+                        DrawTextEx(FontS,"PRESS START OR ENTER TO VALIDATE",Vector2(100,175),8,0,WHITE);        
                 }
                 
             EndMode2D();
@@ -104,10 +136,10 @@ int main()
         //JAFFICHE MA TEXTURE 
         BeginDrawing();
              ClearBackground(WHITE);
-            
+
             DrawTexturePro(targetTexture.texture,
                 Rectangle(0 ,0,-SCREENW,SCREENH) ,
-                Rectangle( SCREENW*1.4 * CurentScale.l ,
+                Rectangle( (SCREENW +30) * CurentScale.l ,
                 SCREENH * CurentScale.h ,
                 SCREENW * CurentScale.l  , 
                 SCREENH* CurentScale.h  ),
@@ -115,6 +147,15 @@ int main()
                 180,
                 WHITE
             );
+
+            DrawTexturePro(OverlayImg,
+                Rectangle(0,0,1920,1080),
+                Rectangle(0,0, (screenWidth+53) *CurentScale.l,
+                (screenHeight+15 )* CurentScale.h),
+                Vector2Zero,
+                0,
+                WHITE);
+                
             DrawFPS(10,10);
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -192,7 +233,8 @@ void CameraLimiteScheck(Camera2D *camera)
     }
                     
 }
-void InitMapExecute(){
+void InitMapExecute()
+{
 
     InitMap(&GameObjectTable);
 }
@@ -200,7 +242,8 @@ void InitPause()
 {
      if(IsKeyReleased(KEY_SPACE))
     {
-        isPause = !isPause;
+        if(Scene.CurentScene == GamePlay)
+            GamePlayPause();
     }
 
    

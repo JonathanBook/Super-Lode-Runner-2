@@ -1,9 +1,9 @@
 #include <raylib.h>
+#include "GameObject.h"
 #include <raymath.h>
-#include <math.h>
 
 #define SCREENH 240
-#define SCREENW 256
+#define SCREENW 400
 #define Rectangle(x,y,w,h)   (Rectangle){x,y,w,h}
 #define Vector2(x,y)   (Vector2){x,y}
 #define Vector2Zero  Vector2(0,0)
@@ -36,46 +36,6 @@
 #define GamePlay 1
 #define BONUUSIMG 76
 
-
-
-typedef struct GameObject
-{
-    //MOOV
-    float Speed  ;
-    Vector2 Velocity  ;
-    float MaxSpeed  ;
-    Vector2 Position  ;
-    Vector2 Offset ;
-
-   
-    struct Animation{
-    int Frame[10][10] ;
-    int MaxFrame  ;
-    int NumeroAnimation  ;
-    int CurentFrame  ;
-    float TimeAnimation ;
-    bool Pause  ;
-    }Animation ;   
-    
-
-    bool Flip  ;
-
-  //STATES
-    bool isActive;
-    bool isClimbing ;
-    bool isLadder ;
-    bool isClimbingStick ;
-    bool isFall ;
-    bool isGround ;
-  //Scor
-  int Points;
-  int Value;
-   
-
-}GameObject;
-
-
-
 typedef struct Scale
 {
     float l ;
@@ -93,22 +53,34 @@ bool SetTile(Vector2 Pposition , int Ptile) ;
 void SelectedCountPlayer(int Count);
 void InitPlayers(GameObject *liste[],Vector2 Spawn,int Player,int Tile);
 Vector2 InputManager();
-void DrawGameObject(Texture2D tilset ,Rectangle ListeRectangle[],GameObject*liste[]);
+
 
 //Glimbing.c
-void Glimbing(float *SpeedX , float *SpeedY , GameObject *Acteur,int Tile) ;
-void ExitToStick(  GameObject *Acteur) ;
 bool CheckIsGlimbing(float *SpeedX , float *SpeedY , GameObject *Acteur);
+
 //Animation.c
 void AppliqueNewAnimation(int NumeroAnimation , int MaxFrame, GameObject *Acteur);
 void UpdateAnimation( GameObject *Acteur);
 
 //Collision.c
 bool CheckCollision(GameObject *Acteur,bool IsCheckGround);
+
 //Bonus.c 
 void InitBonus(GameObject *liste[],Vector2 Spawn,int bonusImg);
+bool CheckColBonus(GameObject *Acteur);
+//main.c
 void DefineGameObjectTable(GameObject *liste[]);
-int CheckColBonus(GameObject *Acteur);
-bool LoadScene( int NumeroScene ,int*SceneM);
-void MouvPlayer(float SpeedX , float SpeedY , GameObject *Acteur );
 void InitMapExecute();
+
+//SceneManager.c
+bool LoadScene( int NumeroScene ,int*SceneM);
+//MovActeur.c
+void MouvActeur(float SpeedX , float SpeedY , GameObject *Acteur );
+//GameManager.c
+void InitGamePlay();
+int SetScore(int Points);
+int SetBestScore(int Points);
+int GetScore();
+int GetBestScore();
+bool GamePlayPause();
+bool GetPause();

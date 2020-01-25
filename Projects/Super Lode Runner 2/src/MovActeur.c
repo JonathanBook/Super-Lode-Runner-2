@@ -1,14 +1,14 @@
 #include <raylib.h>
 #include "main.h"
-
+//#include "GameObject.h"
 bool CheckGround(GameObject *Acteur);
 
 int Gravity = 10 ;
 
-void MouvPlayer(float SpeedX , float SpeedY , GameObject *Acteur )
+void MouvActeur(float SpeedX , float SpeedY , GameObject *Acteur )
 {
     
-    Acteur->Points += CheckColBonus(Acteur);
+    CheckColBonus(Acteur);
 
     if( CheckIsGlimbing(&SpeedX,&SpeedY,Acteur))
     {

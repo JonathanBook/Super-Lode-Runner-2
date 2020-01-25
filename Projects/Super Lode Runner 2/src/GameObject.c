@@ -1,6 +1,6 @@
 #include "main.h"
 #include <raylib.h>
-#include <raymath.h>
+//#include "GameObject.h"
 
 void DrawGameObject(Texture2D tilset ,Rectangle ListeRectangle[],GameObject *liste[])
 {

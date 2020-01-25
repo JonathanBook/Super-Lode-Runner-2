@@ -19,9 +19,9 @@ void InitMenu()
 {
     MenuTexture = LoadTexture("Assets/Image/Menu.png") ;
 
-    cursor.Position[0] = Vector2(80,112) ;//Player 1
-    cursor.Position[1] = Vector2(80,129); //Player2
-    cursor.Position[2] = Vector2(80,146); // Edit mode
+    cursor.Position[0] = Vector2(120,112) ;//Player 1
+    cursor.Position[1] = Vector2(120,129); //Player2
+    cursor.Position[2] = Vector2(120,146); // Edit mode
     
     cursor.CurentPos = 0;
     cursorPos = cursor.Position[cursor.CurentPos] ;
@@ -30,7 +30,7 @@ void InitMenu()
 
 void UpdateCursor(int *Scene)
 {
-     if (IsKeyPressed(KEY_W)) //UP
+     if (IsKeyPressed(KEY_W)||IsGamepadButtonReleased(GAMEPAD_PLAYER1 , GAMEPAD_BUTTON_LEFT_FACE_UP)) //UP
      {
          if(cursor.CurentPos ==0)
          {
@@ -43,7 +43,7 @@ void UpdateCursor(int *Scene)
         cursorPos = cursor.Position[cursor.CurentPos] ;
         return ;
 
-     } else  if (IsKeyPressed(KEY_S)) //DOWN
+     } else  if (IsKeyPressed(KEY_S)||IsGamepadButtonReleased(GAMEPAD_PLAYER1 , GAMEPAD_BUTTON_LEFT_FACE_DOWN)) //DOWN
      {
              if(cursor.CurentPos ==2)
          {
@@ -55,7 +55,7 @@ void UpdateCursor(int *Scene)
         cursor.CurentPos +=1 ;
         cursorPos = cursor.Position[cursor.CurentPos] ;
         return ;
-     }else if (IsKeyPressed(KEY_ENTER)) //Validate
+     }else if (IsKeyPressed(KEY_ENTER)||IsGamepadButtonReleased(GAMEPAD_PLAYER1 , GAMEPAD_BUTTON_MIDDLE_RIGHT)) //Validate
      {
         if(cursor.CurentPos ==0)
         {
@@ -67,15 +67,11 @@ void UpdateCursor(int *Scene)
         }else if(cursor.CurentPos ==1)
         {
             SelectedCountPlayer(2);
-            InitMapExecute();
+            InitGamePlay();
             LoadScene(GamePlay,Scene);
             return; 
-        }
-        
-            
-     }
-     
-     
+        }      
+    }   
 }
 
 void DrawMenu(Texture2D tilset ,Rectangle ListeRectangle[])

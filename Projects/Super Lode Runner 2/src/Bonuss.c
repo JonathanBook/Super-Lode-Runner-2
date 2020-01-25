@@ -3,7 +3,6 @@
 #include "main.h"
 #include "Sound.h"
 
-
 GameObject bonus[10]={0};
 int NumberBonus =0;
 
@@ -32,7 +31,7 @@ void InitBonus(GameObject *liste[],Vector2 Spawn,int bonusImg)
     liste[(NumberBonus+2)] = &bonus[NumberBonus] ;
 }
 
-int CheckColBonus(GameObject *Acteur)
+bool CheckColBonus(GameObject *Acteur)
 {
     int L = ceil( Acteur->Position.x / TILEW ) ;
     int H = ceil ( Acteur->Position.y / TILEH ) ;
@@ -47,7 +46,9 @@ int CheckColBonus(GameObject *Acteur)
             if(Bl == L && BH == H){
                 bonus[i].isActive = false;
                 PlayFx(1);
-                return 100 ;
+                SetScore(GetScore + 100) ;
+                return true ;
+
             }
             
         } 

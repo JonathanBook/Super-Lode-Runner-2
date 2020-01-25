@@ -1,7 +1,7 @@
 #include "main.h"
 #include <raylib.h>
 #include <raymath.h>
-
+//#include"GameObject.h"
 
 //Check the different collisions the hero may encounter
 bool CheckCollision(GameObject *Acteur ,bool IsCheckGround)

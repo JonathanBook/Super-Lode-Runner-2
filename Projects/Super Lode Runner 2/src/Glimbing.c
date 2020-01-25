@@ -1,16 +1,16 @@
 #include "main.h"
 #include <raylib.h>
-#include <math.h>
 #include <raymath.h>
-#include <stdio.h>
+//#include "GameObject.h"
 
-void InitGlimbing(float *SpeedX , float *SpeedY , struct GameObject *Acteur,int Tile);
-void MoveToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
-void UpToExitLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
-void DownExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur,int Tile);
-void LeftAndRightExitToLadder(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
-void VeloCityUpdate(float *SpeedX , float *SpeedY , struct GameObject *Acteur);
-
+void InitGlimbing(float *SpeedX , float *SpeedY ,  GameObject *Acteur,int Tile);
+void MoveToLadder(float *SpeedX , float *SpeedY , GameObject *Acteur);
+void UpToExitLadder(float *SpeedX , float *SpeedY , GameObject *Acteur);
+void DownExitToLadder(float *SpeedX , float *SpeedY , GameObject *Acteur,int Tile);
+void LeftAndRightExitToLadder(float *SpeedX , float *SpeedY , GameObject *Acteur);
+void VeloCityUpdate(float *SpeedX , float *SpeedY , GameObject *Acteur);
+void Glimbing(float *SpeedX , float *SpeedY , GameObject *Acteur,int Tile) ;
+void ExitToStick(  GameObject *Acteur) ;
 
 
 

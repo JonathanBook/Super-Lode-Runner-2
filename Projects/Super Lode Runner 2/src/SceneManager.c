@@ -4,8 +4,6 @@
 #include "Sound.h"
 
 
-
-
 bool LoadScene( int NumeroScene ,int*SceneM)
 {
     if(NumeroScene >=Menu && NumeroScene <=GamePlay)
