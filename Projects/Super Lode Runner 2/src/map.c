@@ -62,6 +62,11 @@ void InitMap(GameObject *l[])
                 {
                     InitBonus(l , Vector2 (x * TILEW , y * TILEH),BONUUSIMG);
                 }
+
+                if(tile == 3/*Temp Enemy Test*/)
+                {
+                    InitEnemy(l,Vector2 (x * TILEW , y * TILEH));
+                }
                 TableMap[x][y] = -1  ;
             }
             

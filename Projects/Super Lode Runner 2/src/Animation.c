@@ -20,8 +20,8 @@ void UpdateAnimation( GameObject *Acteur)
     //if the velocity and equal zero and that the current animation and diferent of the idle but lamination on pause
     if(Acteur->Velocity.x == 0 && Acteur->Velocity.y == 0 && Acteur->Animation.NumeroAnimation != ANIMATIONIDLE)
     {
-        Acteur->Animation.Pause = true;
-        return;
+       // Acteur->Animation.Pause = true;
+       // return;
       
       //Otherwise the animation is not on pause
     }else if(Acteur->Velocity.x == 0 && Acteur->Velocity.y == 0)

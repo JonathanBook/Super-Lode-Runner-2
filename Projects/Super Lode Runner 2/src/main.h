@@ -54,6 +54,9 @@ void SelectedCountPlayer(int Count);
 void InitPlayers(GameObject *liste[],Vector2 Spawn,int Player,int Tile);
 Vector2 InputManager();
 
+//EnemyIa.c
+void InitEnemy(GameObject *liste[],Vector2 Spawn);
+void Ia(GameObject *Player);
 
 //Glimbing.c
 bool CheckIsGlimbing(float *SpeedX , float *SpeedY , GameObject *Acteur);
@@ -68,14 +71,22 @@ bool CheckCollision(GameObject *Acteur,bool IsCheckGround);
 //Bonus.c 
 void InitBonus(GameObject *liste[],Vector2 Spawn,int bonusImg);
 bool CheckColBonus(GameObject *Acteur);
+
 //main.c
 void DefineGameObjectTable(GameObject *liste[]);
 void InitMapExecute();
 
+//Build&Destroy.c
+void UpdateBloc();
+void DestroyBloc(Vector2 PosB );
+void InitAnimationBloc();
+
 //SceneManager.c
 bool LoadScene( int NumeroScene ,int*SceneM);
+
 //MovActeur.c
 void MouvActeur(float SpeedX , float SpeedY , GameObject *Acteur );
+
 //GameManager.c
 void InitGamePlay();
 int SetScore(int Points);
@@ -84,3 +95,4 @@ int GetScore();
 int GetBestScore();
 bool GamePlayPause();
 bool GetPause();
+

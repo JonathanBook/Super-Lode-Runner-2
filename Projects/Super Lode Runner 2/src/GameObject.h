@@ -28,9 +28,9 @@ typedef struct GameObject
     bool isClimbingStick ;
     bool isFall ;
     bool isGround ;
-  //Scor
-  int Points;
-  int Value;
+  
+  char Name[10];
+  
    
 
 }GameObject;

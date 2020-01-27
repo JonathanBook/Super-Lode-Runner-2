@@ -2,12 +2,14 @@
 #include <raylib.h>
 
 #define CURSOR 94
+#define CCURSORH 112
+#define CURSORW 120
 
 Texture2D MenuTexture = {0};
 
 struct Cursor
 {
-    Vector2 Position[3] ;
+    Vector2 Position[2] ;
   
     int CurentPos ;
 };
@@ -19,9 +21,9 @@ void InitMenu()
 {
     MenuTexture = LoadTexture("Assets/Image/Menu.png") ;
 
-    cursor.Position[0] = Vector2(120,112) ;//Player 1
-    cursor.Position[1] = Vector2(120,129); //Player2
-    cursor.Position[2] = Vector2(120,146); // Edit mode
+    cursor.Position[0] = Vector2(CURSORW,CCURSORH) ;//Player 1
+    cursor.Position[1] = Vector2(CURSORW,CCURSORH + 17); //Player2
+    cursor.Position[2] = Vector2(CURSORW,CCURSORH + 34); // Edit mode
     
     cursor.CurentPos = 0;
     cursorPos = cursor.Position[cursor.CurentPos] ;
