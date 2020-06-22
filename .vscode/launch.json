@@ -8,7 +8,7 @@
             "name": "(gdb) Lancer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "entrer le nom du programme, par exemple ${workspaceFolder}/a.exe",
+            "program": "entrer le nom du programme, par exemple ${workspaceFolder}/Super-Lode-Runner-2-debug-version.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
